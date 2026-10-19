@@ -1,0 +1,21 @@
+# Configuration Réseau Netplan pour VM3 (Victime - Double Interface Recommandée)
+# Fichier à placer dans /etc/netplan/01-netcfg.yaml sur VM3
+# Puis appliquer : sudo netplan apply
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    # Interface 1 : Réseau interne SOC (VMnet2) -> communique avec VM1 (192.168.10.10)
+    ens33:
+      addresses:
+        - 192.168.10.30/24
+
+    # Interface 2 : Réseau attaquant externe (VMnet3) -> exposé à l'attaquant VM2 (192.168.20.20)
+    ens34:
+      addresses:
+        - 192.168.20.30/24
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 1.1.1.1

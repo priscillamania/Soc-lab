@@ -1,0 +1,16 @@
+# Configuration Réseau Netplan pour VM2 (Machine Attaquant)
+# Fichier à placer dans /etc/netplan/01-netcfg.yaml sur VM2
+# Puis appliquer : sudo netplan apply
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    # Interface connectée au réseau attaquant externe (VMnet3)
+    ens33:
+      addresses:
+        - 192.168.20.20/24
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 1.1.1.1

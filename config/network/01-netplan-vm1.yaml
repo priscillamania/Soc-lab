@@ -1,0 +1,16 @@
+# Configuration Réseau Netplan pour VM1 (Serveur SOC)
+# Fichier à placer dans /etc/netplan/01-netcfg.yaml sur VM1
+# Puis appliquer : sudo netplan apply
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    # Interface connectée au réseau SOC interne (VMnet2)
+    ens33:
+      addresses:
+        - 192.168.10.10/24
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 1.1.1.1

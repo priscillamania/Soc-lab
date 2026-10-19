@@ -1,0 +1,22 @@
+# Configuration Filebeat pour expédition vers Graylog (VM1)
+filebeat.inputs:
+- type: filestream
+  id: nginx-logs
+  enabled: true
+  paths:
+    - /var/log/nginx/*.log
+
+- type: filestream
+  id: auth-logs
+  enabled: true
+  paths:
+    - /var/log/auth.log
+
+output.logstash:
+  hosts: ["https://IP_du_serveur:9200"]
+  protocol: https
+  username: "admin"
+  password: "Password_du_indexer"
+  ssl.certificate_authorities: ["/etc/filebeat/certs/root-ca.pem"]  #Modifier selon vous certificats
+  ssl.certificate: "/etc/filebeat/certs/filebeat.pem"   #Modifier selon vous certificats
+  ssl.key: "/etc/filebeat/certs/filebeat-key.pem"   #Modifier selon vous certificats

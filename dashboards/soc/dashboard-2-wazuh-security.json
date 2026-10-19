@@ -1,0 +1,131 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 7, "w": 10, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Nombre d'alertes par niveau de criticité (Gauge)",
+      "type": "gauge",
+      "datasource": { "type": "elasticsearch", "uid": "OpenSearch-Wazuh" },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 10 },
+              { "color": "orange", "value": 25 },
+              { "color": "red", "value": 50 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "rule.level",
+              "id": "2",
+              "settings": { "order": "desc", "orderBy": "_count", "size": "5" },
+              "type": "terms"
+            }
+          ],
+          "metrics": [{ "id": "1", "type": "count" }],
+          "query": "rule.level:>=7",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 7, "w": 14, "x": 10, "y": 0 },
+      "id": 2,
+      "title": "Top 5 des règles Wazuh déclenchées",
+      "type": "table",
+      "datasource": { "type": "elasticsearch", "uid": "OpenSearch-Wazuh" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": { "align": "auto", "displayMode": "auto" }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "rule.description",
+              "id": "2",
+              "settings": { "order": "desc", "orderBy": "_count", "size": "5" },
+              "type": "terms"
+            },
+            {
+              "field": "rule.id",
+              "id": "3",
+              "settings": { "order": "desc", "orderBy": "_count", "size": "1" },
+              "type": "terms"
+            },
+            {
+              "field": "rule.level",
+              "id": "4",
+              "settings": { "order": "desc", "orderBy": "_count", "size": "1" },
+              "type": "terms"
+            }
+          ],
+          "metrics": [{ "id": "1", "type": "count" }],
+          "query": "*",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 7 },
+      "id": 3,
+      "title": "Timeline des alertes de sécurité en temps réel",
+      "type": "logs",
+      "datasource": { "type": "elasticsearch", "uid": "OpenSearch-Wazuh" },
+      "options": {
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": true,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "bucketAggs": [],
+          "metrics": [{ "id": "1", "type": "logs" }],
+          "query": "rule.level:>=5",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["soc", "wazuh", "security"],
+  "time": { "from": "now-1h", "to": "now" },
+  "timezone": "browser",
+  "title": "Dashboard 2 — Alertes Wazuh Sécurité",
+  "uid": "soc-dashboard-2",
+  "version": 1
+}
