@@ -83,5 +83,3 @@ Les noms d'hôtes sont définis dans `/etc/hosts` :
    sudo bash hardening/hardening-vm1.sh
    sudo bash hardening/hardening-vm2.sh
    sudo bash hardening/hardening-vm3.sh
-
-5. **
