@@ -46,7 +46,7 @@ Infrastructure d'un Security Operations Center (SOC) complète, avec :
  
 |    VM   |       IP     | Services |
 |----|----|--------------|
-| **VM1** | 192.168.1.54 | Wazuh Manager, Wazuh Indexer (OpenSearch), Wazuh Dashboard, Grafana, Prometheus |
+| **VM1** | 192.168.1.54 | Wazuh Manager, Wazuh Indexer (OpenSearch), Wazuh Dashboard, Grafana, Prometheus, Nginx |
 | **VM2** | 192.168.1.20 | Machine d'attaque (Hydra, Nmap) |
 | **VM3** | 192.168.1.26 | Agent Wazuh, Filebeat, Nginx, auditd |
 
@@ -83,3 +83,22 @@ Les noms d'hôtes sont définis dans `/etc/hosts` :
    sudo bash hardening/hardening-vm1.sh
    sudo bash hardening/hardening-vm2.sh
    sudo bash hardening/hardening-vm3.sh
+
+
+
+## Structure du dépôt
+
+- `config/` : Fichiers de configuration (network, filebeat, prometheus).
+- `dashboards/` : Dashboards Grafana (JSON).
+- `hardening/` : Scripts de durcissement.
+- `scripts/` : Playbooks Ansible et scénarios d'attaque.
+- `rapport/` : Rapport technique.
+- `presentation/` : Slides.
+
+## Déploiement
+
+Voir `scripts/` pour les playbooks Ansible.
+
+## Sécurité
+
+Les mots de passe ne sont **pas** versionnés.
