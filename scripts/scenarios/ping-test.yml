@@ -1,0 +1,21 @@
+---
+- name: Ping test avec Google & routeur
+  hosts: wazuh_server:agents
+  tasks:
+    - name: Ping Google (8.8.8.8)
+      ansible.builtin.command: ping -c 3 8.8.8.8
+      register: ping_google
+      ignore_errors: yes
+
+    - name: ping le routeur (192.168.1.254)
+      ansible.builtin.command: ping -c 3 192.168.1.254
+      register: ping_router
+      ignore_errors: yes
+
+    - name: Resultat ping google
+      ansible.builtin.debug:
+        msg: "{{ ping_google.stdout_lines }}"
+
+    - name: Resultat ping routeur
+      ansible.builtin.debug:
+        msg: "{{ ping_router.stdout_lines }}"

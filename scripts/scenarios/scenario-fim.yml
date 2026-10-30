@@ -1,0 +1,10 @@
+---
+- name: Cenário C - Simulação de Modificação Indevida de Ficheiro
+  hosts: agents
+  gather_facts: false
+  become: yes
+  tasks:
+    - name: Modificar o ficheiro /etc/hosts na VM3
+      shell: |
+        echo "127.0.0.1 test-hacker-entry" >> /etc/hosts
+      changed_when: true

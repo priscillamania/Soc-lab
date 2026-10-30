@@ -1,0 +1,21 @@
+---
+- name: Installer Nginx
+  hosts: wazuh_server:agents
+  become: yes
+  tasks:
+    - name: MAJ du cache apt
+      ansible.builtin.apt:
+        update_cache: yes
+        lock_timeout: 300
+
+    - name: Installer le paquet nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        lock_timeout: 300
+
+    - name: Initialiser le Nginx et vérifier le stat
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes

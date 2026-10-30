@@ -1,0 +1,10 @@
+---
+- name: Scenario B - Reconnaissance et Scan de Ports
+  hosts: attackers
+  gather_facts: false
+  tasks:
+    - name: Exécuter Nmap SYN Scan sur la VM3
+      shell: |
+        nmap -sS -p 22,80,443,8080,3000,9000 vm3.soc-lab.local
+      ignore_errors: yes
+      changed_when: false

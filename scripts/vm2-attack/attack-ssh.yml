@@ -1,0 +1,12 @@
+---
+- name: Attaque par force brute SSH
+  hosts: agents
+  become: yes
+  tasks:
+    - name: Effectuer 15 tentatives de connexion SSH
+      shell: |
+        for i in $(seq 1 15); do
+          ssh root@{{ inventory_hostname }} -p 22 -o ConnectTimeout=2 -o PreferredAuthentications=password -o PubkeyAuthentication=no 2>/dev/null
+        done
+      ignore_errors: yes
+      changed_when: false
