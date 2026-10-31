@@ -1,0 +1,18 @@
+---
+- name: Installer les packets PHP
+  hosts: wazuh_server
+  become: yes
+  tasks:
+    - name: MAJ ddu cache apt
+      ansible.builtin.apt:
+        update_cache: yes
+        lock_timeout: 300
+
+    - name: Installer PHP-FPM & PHP-curl
+      ansible.builtin.apt:
+        name:
+          - php-fpm
+          - php-curl
+        state: present
+        lock_timeout: 300
+

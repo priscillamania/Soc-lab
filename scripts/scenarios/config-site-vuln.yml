@@ -1,0 +1,123 @@
+---
+- name: Configurer Nginx et créer la page des vulnérabilités
+  hosts: wazuh_server
+  become: yes
+  tasks:
+    - name: Ajouter le bloc PHP à Nginx
+      ansible.builtin.blockinfile:
+        path: /etc/nginx/sites-available/default
+        block: |
+          location ~ \.php$ {
+              include snippets/fastcgi-php.conf;
+              fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+          }
+        insertafter: "location / {"
+        marker: "# {mark} BLOC GÉRÉ PAR ANSIBLE - PHP"
+      notify: Redémarrer Nginx
+
+    - name: Créer la page PHP des vulnérabilités
+      ansible.builtin.copy:
+        dest: /var/www/html/vulnerabilites.php
+        mode: '0644'
+        content: |
+          <?php
+          $user = 'admin';
+          $pass = 'FN*kajRRSOLJJJvBsbn+lo4Ui5lMBA2r';
+          $indexer_url = 'https://127.0.0.1:9200/wazuh-states-vulnerabilities/_search';
+
+          $query = json_encode([
+              'size' => 50,
+              'sort' => [['vulnerability.severity' => 'desc']],
+              '_source' => ['vulnerability.id', 'vulnerability.severity', 'package.name', 'package.version', 'vulnerability.solution.fixed_version', 'agent.name']
+          ]);
+
+          $ch = curl_init();
+          curl_setopt($ch, CURLOPT_URL, $indexer_url);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($ch, CURLOPT_USERPWD, "$user:$pass");
+          curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+          curl_setopt($ch, CURLOPT_POST, true);
+          curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
+          curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+
+          $response = curl_exec($ch);
+          $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+          curl_close($ch);
+          ?>
+          <!DOCTYPE html>
+          <html lang="fr">
+          <head>
+              <meta charset="UTF-8">
+              <title>Vulnérabilités Wazuh</title>
+              <style>
+                  body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+                  h1 { color: #333; }
+                  table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+                  th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+                  th { background: #2c3e50; color: white; }
+                  tr:hover { background: #f1f1f1; }
+                  .critical { color: #e74c3c; font-weight: bold; }
+                  .high { color: #e67e22; font-weight: bold; }
+                  .medium { color: #f1c40f; }
+                  .low { color: #2ecc71; }
+                  .patch-yes { color: #27ae60; font-weight: bold; }
+                  .patch-no { color: #c0392b; }
+              </style>
+          </head>
+          <body>
+              <h1>Vulnérabilités détectées par Wazuh</h1>
+              <p>Cette page interroge l'index <code>wazuh-states-vulnerabilities</code> du Wazuh Indexer.</p>
+
+              <?php if ($http_code != 200): ?>
+                  <p style="color:red;">Erreur de connexion à l'Indexer (HTTP <?php echo $http_code; ?>). Vérifiez les identifiants et que l'Indexer est en cours d'exécution.</p>
+              <?php else: 
+                  $data = json_decode($response, true);
+                  $hits = $data['hits']['hits'] ?? [];
+              ?>
+                  <table>
+                      <thead>
+                          <tr>
+                              <th>Agent</th>
+                              <th>CVE</th>
+                              <th>Sévérité</th>
+                              <th>Paquet</th>
+                              <th>Version installée</th>
+                              <th>Correctif disponible ?</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <?php if (empty($hits)): ?>
+                              <tr><td colspan="6">Aucune vulnérabilité trouvée dans l'index.</td></tr>
+                          <?php else: ?>
+                              <?php foreach ($hits as $hit): 
+                                  $src = $hit['_source'];
+                                  $sev = $src['vulnerability']['severity'] ?? 'N/A';
+                                  $fix = $src['vulnerability']['solution']['fixed_version'] ?? null;
+                              ?>
+                                  <tr>
+                                      <td><?php echo htmlspecialchars($src['agent']['name'] ?? 'N/A'); ?></td>
+                                      <td><?php echo htmlspecialchars($src['vulnerability']['id'] ?? 'N/A'); ?></td>
+                                      <td class="<?php echo $sev_class; ?>"><?php echo htmlspecialchars($sev); ?></td>
+                                      <td><?php echo htmlspecialchars($src['package']['name'] ?? 'N/A'); ?></td>
+                                      <td><?php echo htmlspecialchars($src['package']['version'] ?? 'N/A'); ?></td>
+                                      <td>
+                                          <?php if ($fix): ?>
+                                              <span class="patch-yes">Oui (<?php echo htmlspecialchars($fix); ?>)</span>
+                                          <?php else: ?>
+                                              <span class="patch-no">Non / Inconnu</span>
+                                          <?php endif; ?>
+                                      </td>
+                                  </tr>
+                              <?php endforeach; ?>
+                          <?php endif; ?>
+                      </tbody>
+                  </table>
+              <?php endif; ?>
+          </body>
+          </html>
+
+  handlers:
+    - name: Redémarrer Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
