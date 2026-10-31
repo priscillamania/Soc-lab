@@ -1,10 +1,11 @@
 ---
-- name: Cenário C - Simulação de Modificação Indevida de Ficheiro
+- name: Scénario B - Modification de /etc/passwd
   hosts: agents
-  gather_facts: false
   become: yes
   tasks:
-    - name: Modificar o ficheiro /etc/hosts na VM3
-      shell: |
-        echo "127.0.0.1 test-hacker-entry" >> /etc/hosts
+    - name: Ajouter une ligne au fichier /etc/passwd
+      ansible.builtin.lineinfile:
+        path: /etc/passwd
+        line: "test:x:1001:1001::/home/test:/bin/bash"
+        insertafter: EOF
       changed_when: true

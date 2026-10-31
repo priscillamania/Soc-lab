@@ -16,7 +16,7 @@ output.logstash:
   hosts: ["https://IP_du_serveur:9200"]
   protocol: https
   username: "admin"
-  password: "Password_du_indexer"
+  password: "ELASTIC_Password"
   ssl.certificate_authorities: ["/etc/filebeat/certs/root-ca.pem"]  #Modifier selon vous certificats
   ssl.certificate: "/etc/filebeat/certs/filebeat.pem"   #Modifier selon vous certificats
   ssl.key: "/etc/filebeat/certs/filebeat-key.pem"   #Modifier selon vous certificats
