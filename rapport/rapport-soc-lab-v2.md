@@ -186,12 +186,12 @@ Rôle dans le laboratoire :
 ```text
 +-----------------------------------------------------------------------------+
 |                           SOC LAB - INFRASTRUCTURE                          |
-|                         Réseau : 192.168.1.0/24 (Bridge)                    |
+|                         Réseau : 192.168.10.0/24 (Bridge)                    |
 +-----------------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------------+
 |  VM1 - Wazuh Server (All-in-One)                                            |
-|  IP : 192.168.1.54          OS : Ubuntu Server 22.04                        |
+|  IP : 192.168.10.10          OS : Ubuntu Server 22.04                        |
 |                                                                             |
 |  +-----------------------------------------------------------------------+  |
 |  |  Wazuh Indexer (OpenSearch)          Port : 9200 (HTTPS)              |  |
@@ -210,7 +210,7 @@ Rôle dans le laboratoire :
                                       |
 +-----------------------------------------------------------------------------+
 |  VM3 - Cible / Agent Wazuh                                                  |
-|  IP : 192.168.1.26 (ou 192.168.10.30)   OS : Ubuntu Server 22.04            |
+|  IP : 192.168.10.30   OS : Ubuntu Server 22.04            |
 |                                                                             |
 |  +-----------------------------------------------------------------------+  |
 |  |  Wazuh Agent                         (ID : 002, actif)                |  |
@@ -226,7 +226,7 @@ Rôle dans le laboratoire :
                                       |
 +-----------------------------------------------------------------------------+
 |  VM2 - Attaquant                                                            |
-|  IP : 192.168.1.20 (ou 192.168.10.20)   OS : Ubuntu Server 22.04            |
+|  IP : 192.168.10.20   OS : Ubuntu Server 22.04            |
 |                                                                             |
 |  +-----------------------------------------------------------------------+  |
 |  |  Hydra                               (brute force SSH)                |  |
@@ -329,7 +329,7 @@ sudo curl -so /etc/filebeat/filebeat.yml \
   https://packages.wazuh.com/4.14/tpl/wazuh/filebeat/filebeat.yml
 
 sudo nano /etc/filebeat/filebeat.yml
-# Modifier : hosts: ["https://192.168.1.54:9200"]
+# Modifier : hosts: ["https://192.168.10.10:9200"]
 
 sudo filebeat keystore create
 echo 'admin' | sudo filebeat keystore add username --stdin --force
@@ -355,10 +355,10 @@ sudo chmod 400 /etc/wazuh-dashboard/certs/*
 
 sudo nano /etc/wazuh-dashboard/opensearch_dashboards.yml
 # server.host: "0.0.0.0"
-# opensearch.hosts: https://192.168.1.54:9200
+# opensearch.hosts: https://192.168.10.10:9200
 
 sudo nano /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
-# url: https://192.168.1.54
+# url: https://192.168.10.10
 # port: 55000
 # username: wazuh-wui
 # password: "PiZIP8lU17YvkF8ue.EcjEvIYSi?gEq8"
@@ -475,12 +475,12 @@ Datasource Wazuh :
 
 | Champ | Valeur |
 | :--- | :--- |
-| Manager URL | https://192.168.1.54:55000 |
-| Indexer URL | https://192.168.1.54:9200 |
+| Manager URL | https://192.168.10.10:55000 |
+| Indexer URL | https://192.168.10.10:9200 |
 | API username | wazuh-wui |
-| API password | PiZIP8lU17YvkF8ue.EcjEvIYSi?gEq8 |
+| API password | API_Pawword |
 | Indexer username | admin |
-| Indexer password | FN*kajRRSOLJJJvBsbn+lo4Ui5lMBA2r |
+| Indexer password | INDEXER_Pawword|
 | Skip TLS verify | Coché |
 | UID | wazuh |
 
@@ -488,7 +488,7 @@ Datasource Prometheus :
 
 | Champ | Valeur |
 | :--- | :--- |
-| URL | http://192.168.1.54:9090 |
+| URL | http://192.168.10.10:9090 |
 | Access | Server (default) |
 
 ### 4.3 VM3 - Agent Wazuh
@@ -514,7 +514,7 @@ Sur le Manager (VM1) :
 /var/ossec/bin/manage_agents
 # Appuyer sur 'A' pour ajouter
 # Nom : vm3
-# IP : 192.168.1.26
+# IP : 192.168.10.30
 # Extraire la clé avec 'E'
 ```
 
@@ -535,7 +535,7 @@ Ajouter :
 ```xml
 <client>
   <server>
-    <address>192.168.1.54</address>
+    <address>192.168.10.10</address>
   </server>
 </client>
 ```
@@ -550,13 +550,13 @@ sudo systemctl start wazuh-agent
 ```bash
 # Rsyslog
 sudo nano /etc/rsyslog.conf
-# Ajouter : *.* @192.168.1.54:514
+# Ajouter : *.* @192.168.10.10:514
 sudo systemctl restart rsyslog
 
 # Filebeat
 sudo apt install -y filebeat
 sudo nano /etc/filebeat/filebeat.yml
-# output.logstash: hosts: ["192.168.1.54:5044"]
+# output.logstash: hosts: ["192.168.10.10:5044"]
 sudo systemctl enable filebeat
 sudo systemctl start filebeat
 
@@ -575,7 +575,7 @@ sudo service auditd restart
 
 | Paramètre | Valeur | Explication |
 | :--- | :--- | :--- |
-| network.host | 192.168.1.54 | Écoute sur l'interface réseau |
+| network.host | 192.168.10.10| Écoute sur l'interface réseau |
 | node.name | node-1 | Identifie le nœud |
 | cluster.initial_master_nodes | ["node-1"] | Nœud maître initial |
 | plugins.security.ssl... | Chemins vers certificats | TLS obligatoire |
@@ -829,7 +829,7 @@ sudo systemctl disable avahi-daemon
 Commande (VM2) :
 ```bash
 for i in $(seq 1 15); do
-  ssh root@192.168.1.26 -p 22 -o ConnectTimeout=2 2>/dev/null
+  ssh root@192.168.10.30 -p 22 -o ConnectTimeout=2 2>/dev/null
 done
 ```
 
@@ -848,7 +848,7 @@ Détection : Wazuh rule.id 550 (level >= 7). Pour une détection en temps réel,
 
 Commande (VM2) :
 ```bash
-nmap -sS -p 192.168.1.26
+nmap -sS -p 192.168.10.30
 ```
 
 Détection : Wazuh détecte le scan, logs dans Graylog (si configuré).
@@ -880,6 +880,6 @@ Détection : Wazuh détecte le scan, logs dans Graylog (si configuré).
 | # | Problème | Cause | Solution |
 | :--- | :--- | :--- | :--- |
 | 9 | Grafana : authentication failed | Mot de passe wazuh-wui obsolète | Mettre à jour wazuh.yml avec le mot de passe du wazuh-passwords.txt |
-| 10 | Grafana : Indexer URL 0.0.0.0 | Adresse d'écoute au lieu de destination | Modifier pour https://192.168.1.54:9200 |
+| 10 | Grafana : Indexer URL 0.0.0.0 | Adresse d'écoute au lieu de destination | Modifier pour https://192.168.10.10:9200 |
 | 11 | Grafana : No data dans les dashboards | UID du datasource incorrect | Modifier l'UID pour wazuh |
 | 12 | Dashboard : server is not ready yet
