@@ -46,9 +46,9 @@ Infrastructure d'un Security Operations Center (SOC) complète, avec :
  
 |    VM   |       IP     | Services |
 |----|----|--------------|
-| **VM1** | 192.168.1.54 | Wazuh Manager, Wazuh Indexer (OpenSearch), Wazuh Dashboard, Grafana, Prometheus, Nginx |
-| **VM2** | 192.168.1.20 | Machine d'attaque (Hydra, Nmap) |
-| **VM3** | 192.168.1.26 | Agent Wazuh, Filebeat, Nginx, auditd |
+| **VM1** | 192.168.10.10 | Wazuh Manager, Wazuh Indexer (OpenSearch), Wazuh Dashboard, Grafana, Prometheus, Nginx |
+| **VM2** | 192.168.10.20 | Machine d'attaque (Hydra, Nmap) |
+| **VM3** | 192.168.10.30 | Agent Wazuh, Filebeat, Nginx, auditd |
 
 ##  Note sur l'implémentation
 
@@ -61,9 +61,9 @@ Pour des raisons de **stabilité et de performance**, les services (Wazuh, Grafa
 
 Les VMs utilisent des IPs statiques dans le réseau `192.168.1.0/24`.
 
-	- VM1 : 192.168.1.54
-	- VM2 : 192.168.1.20
-	- VM3 : 192.168.1.26
+	- VM1 : 192.168.10.10
+	- VM2 : 192.168.10.20
+	- VM3 : 192.168.10.30
 
 Les noms d'hôtes sont définis dans `/etc/hosts` :
 	- `vm1.soc-lab.local`
